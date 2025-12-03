@@ -1,34 +1,45 @@
 pipeline {
+    agent any
 
-	agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/mallikarjunkolur/demo.git'
+            }
+        }
+stage('clean') {
+steps {
+sh 'mvn clean'
+}
+}
+stage('compile') {
+steps {
+sh 'mvn compile'
+}
+}
+stage('test') {
+steps {
+sh 'mvn test'
+}
+}
+stage('build') {
+steps {
+sh 'mvn clean install'
+}
+}
+stage('package') {
+steps {
+sh 'mvn package'
+}
+}
+}
+post {
+success {
+archiveArtifacts artifacts: 'target/*.jar, target/*.war', fingerprint: true
+}
+failure {
+echo "build failed"
+}
+}
+}
 
-	
-	tools {
-  maven 'm360'
-}
-	
-	parameters {
-  string defaultValue: 'adi', name: 'name', trim: true
-}
-	stages {
-	  stage('build') {
-		steps {
-		  sh 'mvn install -DskipTests'
-		}
-	  }
-
-	  stage('test') {
-		  steps {
-				sh 'echo new'
-			}
-		 post {
-			 always{
-				archiveArtifacts artifacts: 'target/**.jar', followSymlinks: false
-			
-			 }
-			}
-	  }
-		
-}
-
-}
